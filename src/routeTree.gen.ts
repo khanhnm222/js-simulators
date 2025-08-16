@@ -8,9 +8,18 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createFileRoute } from '@tanstack/react-router'
+
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 
+const EventLoopLazyRouteImport = createFileRoute('/eventLoop')()
+
+const EventLoopLazyRoute = EventLoopLazyRouteImport.update({
+  id: '/eventLoop',
+  path: '/eventLoop',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/eventLoop.lazy').then((d) => d.Route))
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +28,39 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/eventLoop': typeof EventLoopLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/eventLoop': typeof EventLoopLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/eventLoop': typeof EventLoopLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/eventLoop'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/eventLoop'
+  id: '__root__' | '/' | '/eventLoop'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EventLoopLazyRoute: typeof EventLoopLazyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/eventLoop': {
+      id: '/eventLoop'
+      path: '/eventLoop'
+      fullPath: '/eventLoop'
+      preLoaderRoute: typeof EventLoopLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +73,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EventLoopLazyRoute: EventLoopLazyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
