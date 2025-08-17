@@ -14,12 +14,20 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 
 const EventLoopLazyRouteImport = createFileRoute('/eventLoop')()
+const EnhancedEventLoopLazyRouteImport = createFileRoute('/enhancedEventLoop')()
 
 const EventLoopLazyRoute = EventLoopLazyRouteImport.update({
   id: '/eventLoop',
   path: '/eventLoop',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/eventLoop.lazy').then((d) => d.Route))
+const EnhancedEventLoopLazyRoute = EnhancedEventLoopLazyRouteImport.update({
+  id: '/enhancedEventLoop',
+  path: '/enhancedEventLoop',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/enhancedEventLoop.lazy').then((d) => d.Route),
+)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -28,27 +36,31 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/enhancedEventLoop': typeof EnhancedEventLoopLazyRoute
   '/eventLoop': typeof EventLoopLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/enhancedEventLoop': typeof EnhancedEventLoopLazyRoute
   '/eventLoop': typeof EventLoopLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/enhancedEventLoop': typeof EnhancedEventLoopLazyRoute
   '/eventLoop': typeof EventLoopLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/eventLoop'
+  fullPaths: '/' | '/enhancedEventLoop' | '/eventLoop'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/eventLoop'
-  id: '__root__' | '/' | '/eventLoop'
+  to: '/' | '/enhancedEventLoop' | '/eventLoop'
+  id: '__root__' | '/' | '/enhancedEventLoop' | '/eventLoop'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EnhancedEventLoopLazyRoute: typeof EnhancedEventLoopLazyRoute
   EventLoopLazyRoute: typeof EventLoopLazyRoute
 }
 
@@ -59,6 +71,13 @@ declare module '@tanstack/react-router' {
       path: '/eventLoop'
       fullPath: '/eventLoop'
       preLoaderRoute: typeof EventLoopLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/enhancedEventLoop': {
+      id: '/enhancedEventLoop'
+      path: '/enhancedEventLoop'
+      fullPath: '/enhancedEventLoop'
+      preLoaderRoute: typeof EnhancedEventLoopLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -73,6 +92,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EnhancedEventLoopLazyRoute: EnhancedEventLoopLazyRoute,
   EventLoopLazyRoute: EventLoopLazyRoute,
 }
 export const routeTree = rootRouteImport
