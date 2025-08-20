@@ -3,6 +3,7 @@ import { QueueColumn, Controls } from '@/components/features';
 import { createInitialState, step } from '@/engine/eventLoop';
 import type { LoopState } from '@/types';
 import { createLazyFileRoute } from '@tanstack/react-router';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export const Route = createLazyFileRoute('/event-loop' as any)({
   component: EventLoopSimulator,
@@ -11,7 +12,7 @@ function EventLoopSimulator() {
   const [state, setState] = useState<LoopState>(() => createInitialState());
   const [playing, setPlaying] = useState(false);
   const rafRef = useRef<number | null>(null);
-
+  usePageTitle('Eventloop');
   const handleStep = () => setState(prev => step(prev));
   const handleReset = () => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
